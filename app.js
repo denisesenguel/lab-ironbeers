@@ -1,6 +1,8 @@
+const { response } = require('express');
 const express = require('express');
 
 const hbs = require('hbs');
+const { request } = require('http');
 const { Http2ServerRequest } = require('http2');
 const path = require('path');
 const PunkAPIWrapper = require('punkapi-javascript-wrapper');
@@ -24,27 +26,26 @@ app.get('/', (req, res) => {
 });
 
 
-app.use('/beers', (req, res) => {  
-  if (req.path === '/') {
-    punkAPI.getBeers()
-    .then((beersFromApi) => {
-      res.render('beers', {beers: beersFromApi});
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  } else {
-    const beerId = parseInt(req.path.replace("/beer", ""));
-    punkAPI.getBeer(beerId)
-    .then((specificBeer) => {
-      res.render('beer-info', {beer: specificBeer[0]});
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  }
+app.get('/beers', (req, res) => {  
+  punkAPI.getBeers()
+  .then((beersFromApi) => {
+    res.render('beers', {beers: beersFromApi});
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 });
 
+app.get('/beers/:beer', (req, res) => {
+  const beerId = req.params.beer.replace('beer', '');
+  punkAPI.getBeer(parseInt(beerId))
+  .then((specificBeer) => {
+    res.render('beer-info', {beer: specificBeer[0]});
+  })
+  .catch((err) => {
+    console.log(err);
+  }); 
+})
 
 
 app.get('/random-beer', (req, res) => {
